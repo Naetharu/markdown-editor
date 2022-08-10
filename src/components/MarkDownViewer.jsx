@@ -80,7 +80,11 @@ const MarkDownViewer = ({ text }) => {
 
   const markdown = React.createElement("div", {}, formatted);
 
-  return <div className="bg-zinc-200 w-1/2 p-4">{markdown}</div>;
+  return (
+    <div className="bg-white w-full p-4 grow border-l-2 border-slate-200">
+      {markdown}
+    </div>
+  );
 };
 
 export default MarkDownViewer;
