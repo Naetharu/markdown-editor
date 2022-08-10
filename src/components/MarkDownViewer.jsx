@@ -1,7 +1,6 @@
 import React from "react";
-import { useState, useEffect } from "react";
 
-const MarkDownViewer = ({ text }) => {
+const MarkDownViewer = ({ text, classes }) => {
   // Convert Raw Text into an array per line
   const mdData = text.split(/\r?\n/);
   const formatted = [];
@@ -80,11 +79,7 @@ const MarkDownViewer = ({ text }) => {
 
   const markdown = React.createElement("div", {}, formatted);
 
-  return (
-    <div className="bg-white w-full p-4 grow border-l-2 border-slate-200">
-      {markdown}
-    </div>
-  );
+  return <div className={classes}>{markdown}</div>;
 };
 
 export default MarkDownViewer;
