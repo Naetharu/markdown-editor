@@ -137,6 +137,7 @@ const MarkDown = () => {
         ) {
           setDocumentTitle(newName);
           setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
+          setRawText("");
           return;
         } else {
           msg = "Please choose a different name.";
@@ -144,6 +145,7 @@ const MarkDown = () => {
       } else {
         if (newName !== "" && newName.length > 1 && newName.length < 20) {
           setDocumentTitle(newName);
+          setRawText("");
           setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
           return;
         } else {
