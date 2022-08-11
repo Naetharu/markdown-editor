@@ -2,15 +2,16 @@ import React from "react";
 import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
 import MarkDownViewer from "../components/MarkDownViewer";
+import Sidebar from "../components/Sidebar";
 
 // Media Imports
 import eyeIcon from "../media/icon-show-preview.svg";
 
 const MarkDown = () => {
-  const [documentTitle, setDocumentTitle] = useState("documentName"); // Title of the markdown document
+  const [documentTitle, setDocumentTitle] = useState(null); // Title of the markdown document
   const [rawText, setRawText] = useState(""); // Raw text entered into the textarea
-  const [showEditor, setShowEditor] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [showEditor, setShowEditor] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(true);
   const [savedDocTitles, setSavedDocTitles] = useState(null);
 
   // USE EFFECTS ====================================================
@@ -22,22 +23,54 @@ const MarkDown = () => {
 
   // Take raw input text and convert it into an array with one entry per line of text
   useEffect(() => {
-    const result = rawText.split(/\r?\n/);
-    console.log(result);
-  }, [rawText]);
-
-  useEffect(() => {
     if (localStorage.getItem(documentTitle)) {
       setRawText(localStorage.getItem(documentTitle));
     }
   }, [documentTitle]);
 
+  // Check to see if there are exisitng saved docs, and if so populate our doc list with them on first load
+  useEffect(() => {
+    const startingDocTitles = JSON.parse(localStorage.getItem("savedDocs"));
+    startingDocTitles
+      ? setSavedDocTitles(startingDocTitles)
+      : setSavedDocTitles(null);
+  }, []);
+
   // OTHER FUNCTIONS ================================================
   // =================================================================
   // Delete all existing text in document
-  const clearAll = () => {
-    setRawText("");
+  const deleteDoc = () => {
+    // Remove doc from local storage
     localStorage.removeItem(documentTitle);
+    // Remove title from local storage
+
+    let previousDocList = JSON.parse(localStorage.getItem("savedDocs"));
+    const indexOfDoc = savedDocTitles
+      ? previousDocList.indexOf(documentTitle)
+      : 0;
+
+    let newDocList;
+
+    // Only check if at least one doc has been saved
+    if (previousDocList) {
+      if (previousDocList.length === 1) {
+        newDocList = null;
+      } else {
+        previousDocList.splice(indexOfDoc, 1);
+        newDocList = previousDocList;
+      }
+    }
+
+    if (newDocList) {
+      localStorage.setItem("savedDocs", JSON.stringify(newDocList));
+      setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
+    } else {
+      localStorage.removeItem("savedDocs");
+      setSavedDocTitles(null);
+    }
+
+    setDocumentTitle(null);
+    setRawText("");
   };
 
   // Swicth between editor and full screen reader mode
@@ -54,19 +87,29 @@ const MarkDown = () => {
     // Get the existing list of doc titles in local storage
     const existingDocs = JSON.parse(localStorage.getItem("savedDocs"));
 
-    // Check if prior docs exist. If yes then spread them into new array.
     let newDocs;
+
+    // Check if there are already some docs saved
     if (existingDocs) {
-      newDocs = [...existingDocs, documentTitle];
+      // If this entry has not already been added, then add it. Do nothing if this is a duplication (i.e. we're just updating the body - not adding the doc)
+      if (!existingDocs.includes(documentTitle)) {
+        newDocs = [...existingDocs, documentTitle];
+      }
     } else {
+      // If this is the first document then simply add ths one as the first member of the savedDocs collection
       newDocs = [documentTitle];
     }
 
-    // Update local storage with new saved doc title list
-    localStorage.setItem("savedDocs", JSON.stringify(newDocs));
+    // Update local storage with new saved doc title list if this is a new addtion
+    if (newDocs) {
+      localStorage.setItem("savedDocs", JSON.stringify(newDocs));
+    }
 
     // Add body of new doc to local storage
     localStorage.setItem(documentTitle, rawText);
+
+    // Update Document List
+    setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
   };
 
   // Update raw text ready for processing into array
@@ -76,33 +119,47 @@ const MarkDown = () => {
 
   // Load document
   const loadDoc = (e) => {
-    console.log(e.target.innerText);
     setDocumentTitle(e.target.innerText);
+  };
+
+  const newDocument = () => {
+    let msg = "Please enter a document name";
+
+    while (true) {
+      let newName = prompt(msg);
+
+      if (localStorage.getItem("savedDocs")) {
+        if (
+          newName !== "" &&
+          newName.length > 1 &&
+          newName.length < 20 &&
+          !JSON.parse(localStorage.getItem("savedDocs")).includes(newName)
+        ) {
+          setDocumentTitle(newName);
+          setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
+          return;
+        } else {
+          msg = "Please choose a different name.";
+        }
+      } else {
+        if (newName !== "" && newName.length > 1 && newName.length < 20) {
+          setDocumentTitle(newName);
+          setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
+          return;
+        } else {
+          msg = "Please choose a different name.";
+        }
+      }
+    }
   };
 
   // RENDER ========================================================
   // ===============================================================
-
   if (showEditor) {
     return (
       <div className="flex">
         {showSidebar ? (
-          <div className="min-w-[300px] w-1/6 flex flex-col justify-start items-start p-6 bg-slate-800 text-slate-400 font-bold">
-            <h2 className="pb-4">My Documents</h2>
-            {savedDocTitles ? (
-              savedDocTitles.map((document, index) => (
-                <button
-                  key={index}
-                  className="text-white font-normal p-2 mt-2 mb-2 w-full flex justify-start items-center bg-slate-600 hover:bg-slate-700 active:bg-slate-900"
-                  onClick={loadDoc}
-                >
-                  {document}
-                </button>
-              ))
-            ) : (
-              <></>
-            )}
-          </div>
+          <Sidebar titles={savedDocTitles} loadDocs={loadDoc} />
         ) : (
           <></>
         )}
@@ -110,8 +167,9 @@ const MarkDown = () => {
           <TopNav
             docTitle={documentTitle}
             menuFunction={toggleSidebar}
-            deleteFunction={clearAll}
+            deleteFunction={deleteDoc}
             saveFunction={saveDoc}
+            newDocumentFunction={newDocument}
           />
           <div
             id="textContainer"
@@ -141,7 +199,6 @@ const MarkDown = () => {
                   <img src={eyeIcon} alt="show preview icon" />
                 </button>
               </div>
-
               <MarkDownViewer
                 classes="bg-white w-full p-4 grow border-l-2 border-slate-200"
                 text={rawText}
@@ -155,22 +212,7 @@ const MarkDown = () => {
     return (
       <div className="flex flex-row justify-between">
         {showSidebar ? (
-          <div className="min-w-[300px] w-1/6 flex flex-col justify-start items-start p-6 bg-slate-800 text-slate-400 font-bold">
-            <h2 className="pb-4">My Documents</h2>
-            {savedDocTitles ? (
-              savedDocTitles.map((document, index) => (
-                <button
-                  key={index}
-                  className="text-white font-normal p-2 mt-2 mb-2 w-full flex justify-start items-center bg-slate-600 hover:bg-slate-700 active:bg-slate-900"
-                  onClick={loadDoc}
-                >
-                  {document}
-                </button>
-              ))
-            ) : (
-              <></>
-            )}
-          </div>
+          <Sidebar titles={savedDocTitles} loadDocs={loadDoc} />
         ) : (
           <></>
         )}
@@ -178,13 +220,14 @@ const MarkDown = () => {
           <TopNav
             docTitle={documentTitle}
             menuFunction={toggleSidebar}
-            deleteFunction={clearAll}
+            deleteFunction={deleteDoc}
             saveFunction={saveDoc}
+            newDocumentFunction={newDocument}
           />
           <div id="textContainer" className="grow flex flex-col">
             <div className="flex flex-col grow justify-start items-center bg-white">
               <div className="flex flex-row w-full bg-slate-200 justify-between items-center placeholder:bg-slate-400">
-                <h2 className="bg-slate-200 text-xl font-bold p-4">Preview</h2>
+                <h2 className="bg-slate-200 text-xl font-bold p-4">Reader</h2>
                 <button
                   className="p-4 mr-12 flex justify-center items-center rounded bg-slate-200 hover:bg-slate-500 active:bg-slate-600"
                   onClick={changeView}
