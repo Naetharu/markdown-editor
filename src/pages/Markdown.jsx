@@ -242,7 +242,7 @@ const MarkDown = () => {
     );
   } else {
     return (
-      <div className="flex flex-row h-[20000px]">
+      <div className="flex flex-row">
         {showSaveModal ? <SaveModal saveFunction={newDocument} /> : <></>}
         {showSidebar ? (
           <Sidebar titles={savedDocTitles} loadDocs={loadDoc} />
