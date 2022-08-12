@@ -18,42 +18,45 @@ const MarkDownViewer = ({ text, classes }) => {
       switch (j) {
         case 1:
           formatted.push(
-            <h1 className="text-4xl font-bold text-black mb-20" key={i}>
+            <h1 className="text-4xl font-bold text-black mb-4 mt-2" key={i}>
               {mdData[i].slice(j).toUpperCase()}
             </h1>
           );
           break;
         case 2:
           formatted.push(
-            <h2 className="text-3xl font-bold text-black mb-16" key={i}>
+            <h2 className="text-3xl font-bold text-black mb-4 mt-10" key={i}>
               {mdData[i].slice(j).toUpperCase()}
             </h2>
           );
           break;
         case 3:
           formatted.push(
-            <h3 className="text-2xl font-bold text-black mb-14" key={i}>
+            <h3 className="text-2xl font-bold text-black mb-4 mt-10" key={i}>
               {mdData[i].slice(j).toUpperCase()}
             </h3>
           );
           break;
         case 4:
           formatted.push(
-            <h4 className="text-xl font-bold text-black mb-12" key={i}>
+            <h4 className="text-xl font-bold text-black mb-4 mt-10" key={i}>
               {mdData[i].slice(j).toUpperCase()}
             </h4>
           );
           break;
         case 5:
           formatted.push(
-            <h5 className="text-l font-bold text-black mb-10" key={i}>
+            <h5 className="text-l font-bold text-black mb-4 mt-10" key={i}>
               {mdData[i].slice(j).toUpperCase()}
             </h5>
           );
           break;
         case 6:
           formatted.push(
-            <h6 className="text-md font-semibold text-orange-700 mb-12" key={i}>
+            <h6
+              className="text-md font-semibold text-orange-700  mb-4 mt-10"
+              key={i}
+            >
               {mdData[i].slice(j).toUpperCase()}
             </h6>
           );
@@ -61,7 +64,7 @@ const MarkDownViewer = ({ text, classes }) => {
         default:
           formatted.push(
             <h6
-              className="text-md font-semibold text-orange-700 mb-12 mt-12"
+              className="text-md font-semibold text-orange-700 mb-4 mt-10"
               key={i}
             >
               {mdData[i].slice(j).toUpperCase()}
@@ -74,7 +77,7 @@ const MarkDownViewer = ({ text, classes }) => {
           className="text-sm indent-6 text-zinc-700 font-semibold flex items-center"
           key={i}
         >
-          <div className="w-2 h-2 bg-orange-700 rounded-full ml-6"></div>
+          <div className="w-[6px] h-[6px] bg-orange-700 rounded-full ml-6"></div>
           {mdData[i].slice(1)}
         </div>
       );

@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import TopNav from "../components/TopNav";
 import MarkDownViewer from "../components/MarkDownViewer";
 import Sidebar from "../components/Sidebar";
+import SaveModal from "../components/SaveModal";
 
 // Media Imports
 import eyeIcon from "../media/icon-show-preview.svg";
@@ -11,12 +12,18 @@ const MarkDown = () => {
   const [documentTitle, setDocumentTitle] = useState(null); // Title of the markdown document
   const [rawText, setRawText] = useState(""); // Raw text entered into the textarea
   const [showEditor, setShowEditor] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [savedDocTitles, setSavedDocTitles] = useState(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   // Function ================================================
   // =================================================================
   // Delete all existing text in document
+
+  const toggleNewDocModal = () => {
+    setShowSaveModal(!showSaveModal);
+  };
+
   const deleteDoc = () => {
     // Remove doc from local storage
     localStorage.removeItem(documentTitle);
@@ -104,38 +111,46 @@ const MarkDown = () => {
     setDocumentTitle(e.target.innerText);
   };
 
-  const newDocument = () => {
-    let msg = "Please enter a document name";
+  const newDocument = (e) => {
+    e.preventDefault();
+    console.log("E: ", e);
 
     while (true) {
-      let newName = prompt(msg);
+      let newName = e.target.elements.docNameInput.value;
 
       if (savedDocTitles) {
         if (
           newName !== "" &&
           newName.length > 1 &&
-          newName.length < 20 &&
+          newName.length < 50 &&
           !savedDocTitles.includes(newName)
         ) {
           setDocumentTitle(newName);
           setSavedDocTitles(savedDocTitles);
           setRawText("");
+          setShowSaveModal(false);
           return;
         } else {
-          msg = "Please choose a different name.";
+          //
         }
       } else {
         if (newName !== "" && newName.length > 1 && newName.length < 20) {
           setDocumentTitle(newName);
           setRawText("");
           setSavedDocTitles(savedDocTitles);
+          setShowSaveModal(false);
           return;
         } else {
-          msg = "Please choose a different name.";
+          //
         }
       }
     }
   };
+
+  // const newDocument = (e) => {
+  //   e.preventDefault();
+  //   console.dir(e.target.elements.docNameInput.value);
+  // };
 
   // USE EFFECTS ====================================================
   // ================================================================
@@ -148,7 +163,7 @@ const MarkDown = () => {
       : setSavedDocTitles(null);
   }, []);
 
-  // Take raw input text and convert it into an array with one entry per line of text
+  // Load raw text from local storage when document title is changed.
   useEffect(() => {
     if (localStorage.getItem(documentTitle)) {
       setRawText(localStorage.getItem(documentTitle));
@@ -174,6 +189,7 @@ const MarkDown = () => {
   if (showEditor) {
     return (
       <div className="flex">
+        {showSaveModal ? <SaveModal saveFunction={newDocument} /> : <></>}
         {showSidebar ? (
           <Sidebar titles={savedDocTitles} loadDocs={loadDoc} />
         ) : (
@@ -185,7 +201,7 @@ const MarkDown = () => {
             menuFunction={toggleSidebar}
             deleteFunction={deleteDoc}
             saveFunction={saveDoc}
-            newDocumentFunction={newDocument}
+            newDocumentFunction={toggleNewDocModal}
           />
           <div
             id="textContainer"
@@ -226,7 +242,8 @@ const MarkDown = () => {
     );
   } else {
     return (
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row h-[20000px]">
+        {showSaveModal ? <SaveModal saveFunction={newDocument} /> : <></>}
         {showSidebar ? (
           <Sidebar titles={savedDocTitles} loadDocs={loadDoc} />
         ) : (
@@ -238,7 +255,7 @@ const MarkDown = () => {
             menuFunction={toggleSidebar}
             deleteFunction={deleteDoc}
             saveFunction={saveDoc}
-            newDocumentFunction={newDocument}
+            newDocumentFunction={toggleNewDocModal}
           />
           <div id="textContainer" className="grow flex flex-col">
             <div className="flex flex-col grow justify-start items-center bg-white">
