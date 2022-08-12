@@ -113,7 +113,6 @@ const MarkDown = () => {
 
   const newDocument = (e) => {
     e.preventDefault();
-    console.log("E: ", e);
 
     while (true) {
       let newName = e.target.elements.docNameInput.value;
@@ -157,7 +156,7 @@ const MarkDown = () => {
   // Sync savedDocuments state with local storage on first render.
   useEffect(() => {
     const startingDocTitles = JSON.parse(localStorage.getItem("savedDocs"));
-    console.log("inside: ", startingDocTitles);
+
     startingDocTitles
       ? setSavedDocTitles(startingDocTitles)
       : setSavedDocTitles(null);
