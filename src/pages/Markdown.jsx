@@ -113,7 +113,6 @@ const MarkDown = () => {
 
   const newDocument = (e) => {
     e.preventDefault();
-    console.log("E: ", e);
 
     while (true) {
       let newName = e.target.elements.docNameInput.value;
@@ -147,17 +146,11 @@ const MarkDown = () => {
     }
   };
 
-  // const newDocument = (e) => {
-  //   e.preventDefault();
-  //   console.dir(e.target.elements.docNameInput.value);
-  // };
-
   // USE EFFECTS ====================================================
   // ================================================================
   // Sync savedDocuments state with local storage on first render.
   useEffect(() => {
     const startingDocTitles = JSON.parse(localStorage.getItem("savedDocs"));
-    console.log("inside: ", startingDocTitles);
     startingDocTitles
       ? setSavedDocTitles(startingDocTitles)
       : setSavedDocTitles(null);
@@ -188,7 +181,7 @@ const MarkDown = () => {
   // ===============================================================
   if (showEditor) {
     return (
-      <div className="flex">
+      <div className="flex overflow-hidden no-scrollbar">
         {showSaveModal ? <SaveModal saveFunction={newDocument} /> : <></>}
         {showSidebar ? (
           <Sidebar titles={savedDocTitles} loadDocs={loadDoc} />
@@ -242,7 +235,7 @@ const MarkDown = () => {
     );
   } else {
     return (
-      <div className="flex flex-row">
+      <div className="flex flex-row overflow-hidden no-scrollbar">
         {showSaveModal ? <SaveModal saveFunction={newDocument} /> : <></>}
         {showSidebar ? (
           <Sidebar titles={savedDocTitles} loadDocs={loadDoc} />
