@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import TopNav from "../components/TopNav";
 import MarkDownViewer from "../components/MarkDownViewer";
 import Sidebar from "../components/Sidebar";
@@ -10,33 +10,11 @@ import eyeIcon from "../media/icon-show-preview.svg";
 const MarkDown = () => {
   const [documentTitle, setDocumentTitle] = useState(null); // Title of the markdown document
   const [rawText, setRawText] = useState(""); // Raw text entered into the textarea
-  const [showEditor, setShowEditor] = useState(true);
+  const [showEditor, setShowEditor] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [savedDocTitles, setSavedDocTitles] = useState(null);
 
-  // USE EFFECTS ====================================================
-  // ================================================================
-  // Load list of saved documents into sidebar
-  useEffect(() => {
-    setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
-  }, []);
-
-  // Take raw input text and convert it into an array with one entry per line of text
-  useEffect(() => {
-    if (localStorage.getItem(documentTitle)) {
-      setRawText(localStorage.getItem(documentTitle));
-    }
-  }, [documentTitle]);
-
-  // Check to see if there are exisitng saved docs, and if so populate our doc list with them on first load
-  useEffect(() => {
-    const startingDocTitles = JSON.parse(localStorage.getItem("savedDocs"));
-    startingDocTitles
-      ? setSavedDocTitles(startingDocTitles)
-      : setSavedDocTitles(null);
-  }, []);
-
-  // OTHER FUNCTIONS ================================================
+  // Function ================================================
   // =================================================================
   // Delete all existing text in document
   const deleteDoc = () => {
@@ -83,34 +61,38 @@ const MarkDown = () => {
   };
 
   // Save document to local storage
-  const saveDoc = () => {
-    // Get the existing list of doc titles in local storage
-    const existingDocs = JSON.parse(localStorage.getItem("savedDocs"));
+  const saveDoc = useCallback(() => {
+    // 1: Check to see if the doc has been named.
+    // 2: Check to see if the name is a duplicate - if yes skip ahead and just update the body content.
+    // 3: Check to see if there are already saved docs in local storage. If yes, append. Else make a new entry.
+    // 4: If list of saved docs has changed, update local storage & sync app state.
+    // 5: Update body in local storage.
 
-    let newDocs;
+    // 1:
+    if (documentTitle) {
+      let newDocs;
 
-    // Check if there are already some docs saved
-    if (existingDocs) {
-      // If this entry has not already been added, then add it. Do nothing if this is a duplication (i.e. we're just updating the body - not adding the doc)
-      if (!existingDocs.includes(documentTitle)) {
-        newDocs = [...existingDocs, documentTitle];
+      // 2:
+      if (savedDocTitles) {
+        // 3:
+        if (!savedDocTitles.includes(documentTitle)) {
+          newDocs = [...savedDocTitles, documentTitle];
+        }
+      } else {
+        newDocs = [documentTitle];
       }
-    } else {
-      // If this is the first document then simply add ths one as the first member of the savedDocs collection
-      newDocs = [documentTitle];
+
+      // 4:
+      if (newDocs) {
+        setSavedDocTitles(newDocs);
+      }
+
+      // Update the body of the document
+      localStorage.setItem(documentTitle, rawText);
+
+      // Pull the updated list of savedDocs from local storage to sync app state
     }
-
-    // Update local storage with new saved doc title list if this is a new addtion
-    if (newDocs) {
-      localStorage.setItem("savedDocs", JSON.stringify(newDocs));
-    }
-
-    // Add body of new doc to local storage
-    localStorage.setItem(documentTitle, rawText);
-
-    // Update Document List
-    setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
-  };
+  }, [documentTitle, rawText, savedDocTitles]);
 
   // Update raw text ready for processing into array
   const updateRawText = (e) => {
@@ -128,15 +110,15 @@ const MarkDown = () => {
     while (true) {
       let newName = prompt(msg);
 
-      if (localStorage.getItem("savedDocs")) {
+      if (savedDocTitles) {
         if (
           newName !== "" &&
           newName.length > 1 &&
           newName.length < 20 &&
-          !JSON.parse(localStorage.getItem("savedDocs")).includes(newName)
+          !savedDocTitles.includes(newName)
         ) {
           setDocumentTitle(newName);
-          setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
+          setSavedDocTitles(savedDocTitles);
           setRawText("");
           return;
         } else {
@@ -146,7 +128,7 @@ const MarkDown = () => {
         if (newName !== "" && newName.length > 1 && newName.length < 20) {
           setDocumentTitle(newName);
           setRawText("");
-          setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
+          setSavedDocTitles(savedDocTitles);
           return;
         } else {
           msg = "Please choose a different name.";
@@ -154,6 +136,38 @@ const MarkDown = () => {
       }
     }
   };
+
+  // USE EFFECTS ====================================================
+  // ================================================================
+  // Load list of saved documents into sidebar
+  useEffect(() => {
+    setSavedDocTitles(JSON.parse(localStorage.getItem("savedDocs")));
+  }, []);
+
+  // Take raw input text and convert it into an array with one entry per line of text
+  useEffect(() => {
+    if (localStorage.getItem(documentTitle)) {
+      setRawText(localStorage.getItem(documentTitle));
+    }
+  }, [documentTitle]);
+
+  // Check to see if there are exisitng saved docs in local storage, and if so populate our doc list with them on first load
+  useEffect(() => {
+    const startingDocTitles = JSON.parse(localStorage.getItem("savedDocs"));
+    startingDocTitles
+      ? setSavedDocTitles(startingDocTitles)
+      : setSavedDocTitles(null);
+  }, []);
+
+  // Save document when title changes (i.e. save when creating a new document, or when swapping to a new doc so no work is lost)
+  useEffect(() => {
+    saveDoc();
+  }, [documentTitle, saveDoc]);
+
+  // sync local storage any time list of saved docs is updated
+  useEffect(() => {
+    localStorage.setItem("savedDocs", JSON.stringify(savedDocTitles));
+  }, [savedDocTitles]);
 
   // RENDER ========================================================
   // ===============================================================
@@ -177,7 +191,7 @@ const MarkDown = () => {
             id="textContainer"
             className="bg-zink-200 grow flex flex-row justify-evenly"
           >
-            <div className="flex flex-col bg-red-500 w-1/2">
+            <div className="flex flex-col bg-red-500 w-1/2 max-w-1/2">
               <h2 className="bg-slate-200 text-xl font-bold p-4 border-r-2 border-slate-300">
                 Markdown
               </h2>
@@ -188,7 +202,7 @@ const MarkDown = () => {
                 value={rawText}
               />
             </div>
-            <div className="flex flex-col justify-start w-1/2 items-stretch">
+            <div className="flex flex-col justify-start max-w-1/2 w-1/2 items-stretch">
               <div className="flex flex-row bg-slate-200 justify-between items-center placeholder:bg-slate-400">
                 <h2 className="bg-slate-200 text-xl font-bold p-4 border-l-2 border-slate-300">
                   Preview
