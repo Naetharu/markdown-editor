@@ -119,7 +119,14 @@ const MarkDown = () => {
   if (showEditor) {
     return (
       <div className="flex">
-        {showSaveModal ? <SaveModal saveFunction={addNewFile} /> : <></>}
+        {showSaveModal ? (
+          <SaveModal
+            saveFunction={addNewFile}
+            closeFunction={toggleSaveModal}
+          />
+        ) : (
+          <></>
+        )}
         {showSidebar ? (
           <Sidebar titles={savedDocTitles} loadDocs={updateFileTitle} />
         ) : (
@@ -183,7 +190,14 @@ const MarkDown = () => {
   } else {
     return (
       <div className="flex flex-row">
-        {showSaveModal ? <SaveModal saveFunction={addNewFile} /> : <></>}
+        {showSaveModal ? (
+          <SaveModal
+            saveFunction={addNewFile}
+            closeFunction={toggleSaveModal}
+          />
+        ) : (
+          <></>
+        )}
         {showSidebar ? (
           <Sidebar titles={savedDocTitles} loadDocs={updateFileTitle} />
         ) : (

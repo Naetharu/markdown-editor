@@ -97,7 +97,7 @@ const MarkDownViewer = ({ text, classes }) => {
       formatted.push(
         <p
           key={i}
-          className="p-6 bg-slate-400 border-l-4 border-red-500 rounded text-sm font-bold italic"
+          className="p-6 bg-slate-600 text-white border-l-4 border-red-500 rounded text-sm font-normal font-mono"
         >
           {mdData[i].slice(1)}
         </p>
@@ -106,7 +106,7 @@ const MarkDownViewer = ({ text, classes }) => {
       formatted.push(
         <div key={i} className="w-full flex justify-center items-center">
           <img
-            className="border-2 border-orange-700 w-fit mt-10 mb-10"
+            className="border-4 border-orange-700 w-fit mt-10 mb-10 outline-none rounded"
             src={mdData[i].slice(1)}
             alt=""
           />
