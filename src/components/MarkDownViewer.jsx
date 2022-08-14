@@ -104,7 +104,7 @@ const MarkDownViewer = ({ text, classes }) => {
       );
     } else if (mdData[i].charAt(0) === "!") {
       formatted.push(
-        <div className="w-full flex justify-center items-center">
+        <div key={i} className="w-full flex justify-center items-center">
           <img
             className="border-2 border-orange-700 w-fit mt-10 mb-10"
             src={mdData[i].slice(1)}
