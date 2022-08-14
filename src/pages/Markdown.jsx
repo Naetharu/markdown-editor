@@ -16,14 +16,16 @@ const MarkDown = () => {
   const [savedDocTitles, setSavedDocTitles] = useState(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  // Function ================================================
   // =================================================================
-  // Delete all existing text in document
+  // ====================Function ====================================
+  // =================================================================
 
+  // Toggles center screen modal used to name new documents
   const toggleNewDocModal = () => {
     setShowSaveModal(!showSaveModal);
   };
 
+  // Deletes document from local storage - irreversable.
   const deleteDoc = () => {
     // Remove doc from local storage
     localStorage.removeItem(documentTitle);
@@ -63,6 +65,7 @@ const MarkDown = () => {
     setShowEditor(!showEditor);
   };
 
+  // Toggles sidebar with doc titles
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
@@ -111,6 +114,7 @@ const MarkDown = () => {
     setDocumentTitle(e.target.innerText);
   };
 
+  // Creates a new document & saves it to local storage
   const newDocument = (e) => {
     e.preventDefault();
     console.log("E: ", e);
@@ -131,29 +135,22 @@ const MarkDown = () => {
           setShowSaveModal(false);
           return;
         } else {
-          //
-        }
-      } else {
-        if (newName !== "" && newName.length > 1 && newName.length < 20) {
-          setDocumentTitle(newName);
-          setRawText("");
-          setSavedDocTitles(savedDocTitles);
-          setShowSaveModal(false);
-          return;
-        } else {
-          //
+          if (newName !== "" && newName.length > 1 && newName.length < 20) {
+            setDocumentTitle(newName);
+            setRawText("");
+            setSavedDocTitles(savedDocTitles);
+            setShowSaveModal(false);
+            return;
+          }
         }
       }
     }
   };
 
-  // const newDocument = (e) => {
-  //   e.preventDefault();
-  //   console.dir(e.target.elements.docNameInput.value);
-  // };
-
-  // USE EFFECTS ====================================================
   // ================================================================
+  // ===================USE EFFECTS =================================
+  // ================================================================
+
   // Sync savedDocuments state with local storage on first render.
   useEffect(() => {
     const startingDocTitles = JSON.parse(localStorage.getItem("savedDocs"));
