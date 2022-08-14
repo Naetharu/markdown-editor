@@ -1,14 +1,29 @@
 import React from "react";
-
 const MarkDownViewer = ({ text, classes }) => {
   // Convert Raw Text into an array per line
+  let codeFlag = false;
   const mdData = text.split(/\r?\n/);
   const formatted = [];
 
-  // destory all previous input...
-
   for (let i = 0; i < mdData.length; i++) {
-    if (mdData[i].charAt(0) === "#") {
+    if (mdData[i].charAt(0) === "/") {
+      codeFlag = true;
+      continue;
+    }
+
+    if (mdData[i].charAt(0) === "\\") {
+      codeFlag = false;
+      continue;
+    }
+
+    if (codeFlag) {
+      console.log("inside code");
+      formatted.push(
+        <p className="w-full bg-slate-800 text-white pl-2 pr-2">
+          <code className="font-mono">{mdData[i]}</code>
+        </p>
+      );
+    } else if (mdData[i].charAt(0) === "#") {
       // count how many # we have!
       let j = 0;
       while (mdData[i].charAt(j) === "#") {
