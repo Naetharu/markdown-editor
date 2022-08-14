@@ -137,10 +137,20 @@ const MarkDown = () => {
             id="textContainer"
             className="bg-zink-200 grow flex flex-row justify-evenly"
           >
-            <div className="flex flex-col bg-red-500 w-1/2 max-w-1/2">
-              <h2 className="bg-slate-200 text-xl font-bold p-4 border-r-2 border-slate-300">
-                Markdown
-              </h2>
+            <div className="flex flex-col bg-red-500 w-full lg:w-1/2 max-w-1/2">
+              <div className="flex">
+                <h2 className="bg-slate-200 text-xl font-bold p-4 lg:border-r-2 border-slate-300 grow">
+                  Markdown
+                </h2>
+                <button
+                  id="editorViewBtn"
+                  className="lg:hidden flex justify-center items-center w-14 bg-slate-200 border-none"
+                  onClick={toggleEditor}
+                >
+                  <img src={eyeIcon} alt="show preview icon" />
+                </button>
+              </div>
+
               <textarea
                 id="textAreaMKD"
                 onChange={updateRawText}
@@ -148,7 +158,7 @@ const MarkDown = () => {
                 value={rawText}
               />
             </div>
-            <div className="flex flex-col justify-start max-w-1/2 w-1/2 items-stretch">
+            <div className="hidden lg:flex flex-col justify-start w-none lg:w-1/2 items-stretch">
               <div className="flex flex-row bg-slate-200 justify-between items-center placeholder:bg-slate-400">
                 <h2 className="bg-slate-200 text-xl font-bold p-4 border-l-2 border-slate-300">
                   Preview
@@ -162,7 +172,7 @@ const MarkDown = () => {
                 </button>
               </div>
               <MarkDownViewer
-                classes="bg-white w-full p-4 grow border-l-2 border-slate-200"
+                classes="hidden lg:flex bg-white w-none lg:w-full p-4 grow border-l-2 border-slate-200"
                 text={rawText}
               />
             </div>
@@ -202,7 +212,7 @@ const MarkDown = () => {
 
               <MarkDownViewer
                 text={rawText}
-                classes="bg-white w-1/2 p-4 grow"
+                classes="bg-white w-full lg:w-1/2 p-4 grow"
               />
             </div>
           </div>

@@ -2,7 +2,7 @@ import React from "react";
 
 const Sidebar = ({ titles, loadDocs }) => {
   return (
-    <div className="flex flex-col min-w-[500px] w-[500px] min-h-screen bg-slate-900 p-10 pt-16">
+    <div className="flex flex-col w-screen lg:min-w-[500px] lg:w-[500px] sm:min-w-full sm:w-full min-h-screen bg-slate-900  p-10 pt-16">
       <h2 className="pb-4 text-slate-400 font-bold text-xl">My Documents</h2>
       {titles ? (
         titles.map((document, index) => (
