@@ -7,9 +7,7 @@ import SaveModal from "../components/SaveModal";
 import db from "../firebase";
 import {
   collection,
-  addDoc,
   getDocs,
-  QuerySnapshot,
   deleteDoc,
   setDoc,
   doc,
