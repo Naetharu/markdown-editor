@@ -90,7 +90,6 @@ const MarkDown = () => {
   const addNewFile = (e) => {
     e.preventDefault();
     setDocumentTitle(e.target.elements.docNameInput.value.trim());
-    loadFile();
     setRawText("");
     toggleSaveModal();
   };
